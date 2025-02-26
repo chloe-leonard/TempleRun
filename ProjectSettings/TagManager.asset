@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - piece
+  - Obstacle
+  - Timer
   layers:
   - Default
   - TransparentFX

@@ -19,6 +19,6 @@ public class FollowPlayer : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Application.LoadLevel("scene2_chloe");
+        Application.LoadLevel("scene_3");
     }
 }

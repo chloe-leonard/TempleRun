@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isJumping = false;
 
     private bool isGrounded = true;
+    public bool canMove = true;
     private Animator animator;
 
     // Add a small delay after rotation before allowing jumps
@@ -32,88 +33,89 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Update rotation cooldown
-        if (rotationCooldown > 0)
+        if (canMove)
         {
-            rotationCooldown -= Time.deltaTime;
-        }
-
-        // Check ground state - use a raycast for more reliable ground detection
-        isGrounded = CheckGrounded();
-
-        // Debug.Log($"isGrounded: {isGrounded}, isJumping: {isJumping}, verticalVelocity: {verticalVelocity.y}");
-
-        // Handle rotation
-        turnLeft = Input.GetKeyDown(KeyCode.A);
-        turnRight = Input.GetKeyDown(KeyCode.D);
-
-        if (turnLeft)
-        {
-            transform.Rotate(new Vector3(0f, -90f, 0f));
-            rotationCooldown = rotationCooldownDuration;
-        }
-        else if (turnRight)
-        {
-            transform.Rotate(new Vector3(0f, 90f, 0f));
-            rotationCooldown = rotationCooldownDuration;
-        }
-
-        // Apply gravity and handle jumping
-        if (isGrounded)
-        {
-            // Reset vertical velocity when grounded
-            verticalVelocity.y = -0.5f; // Small negative value to keep grounded
-
-            if (isJumping)
+            // Update rotation cooldown
+            if (rotationCooldown > 0)
             {
-                isJumping = false;
-                // Reset jump animation if needed
+                rotationCooldown -= Time.deltaTime;
             }
 
-            // Check for jump input (only if not in rotation cooldown)
-            if (Input.GetKeyDown(KeyCode.Space) && rotationCooldown <= 0)
+            // Check ground state - use a raycast for more reliable ground detection
+            isGrounded = CheckGrounded();
+
+            // Handle rotation
+            turnLeft = Input.GetKeyDown(KeyCode.A);
+            turnRight = Input.GetKeyDown(KeyCode.D);
+
+            if (turnLeft)
             {
-                // Formula for jump velocity: v = sqrt(-2 * gravity * jumpHeight)
-                verticalVelocity.y = Mathf.Sqrt(-2f * gravity * jumpHeight);
-                isJumping = true;
-                if (animator != null)
+                transform.Rotate(new Vector3(0f, -90f, 0f));
+                rotationCooldown = rotationCooldownDuration;
+            }
+            else if (turnRight)
+            {
+                transform.Rotate(new Vector3(0f, 90f, 0f));
+                rotationCooldown = rotationCooldownDuration;
+            }
+
+            // Apply gravity and handle jumping
+            if (isGrounded)
+            {
+                // Reset vertical velocity when grounded
+                verticalVelocity.y = -0.5f; // Small negative value to keep grounded
+
+                if (isJumping)
                 {
-                    animator.SetTrigger("Jump");
+                    isJumping = false;
+                    // Reset jump animation if needed
+                }
+
+                // Check for jump input (only if not in rotation cooldown)
+                if (Input.GetKeyDown(KeyCode.Space) && rotationCooldown <= 0)
+                {
+                    // Formula for jump velocity: v = sqrt(-2 * gravity * jumpHeight)
+                    verticalVelocity.y = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                    isJumping = true;
+                    if (animator != null)
+                    {
+                        animator.SetTrigger("Jump");
+                    }
                 }
             }
+            else
+            {
+                // Apply gravity
+                verticalVelocity.y += gravity * Time.deltaTime;
+            }
+
+            // Apply vertical movement (gravity/jump)
+            myCharacterController.Move(verticalVelocity * Time.deltaTime);
+
+            // Handle forward movement
+            Vector3 forwardMovement = transform.forward * speed * Time.deltaTime;
+            myCharacterController.Move(forwardMovement);
+
+            // Handle mouse-based side-to-side movement
+            float mouseX = Input.mousePosition.x;
+            float normalizedX = (mouseX / Screen.width) * 2 - 1; // Convert to -1 to 1
+            float targetSideMovement = normalizedX * movementRange;
+
+            // Calculate movement perpendicular to forward direction
+            Vector3 rightDirection = transform.right;
+            Vector3 targetSidePosition = transform.position + rightDirection * targetSideMovement;
+
+            // Apply side movement
+            Vector3 currentPos = transform.position;
+            Vector3 newPosition = Vector3.Lerp(currentPos, targetSidePosition, Time.deltaTime * mouseMovementSpeed);
+
+            // Calculate only the side movement component
+            Vector3 sideMovementOnly = newPosition - currentPos;
+            Vector3 projectedOnRight = Vector3.Project(sideMovementOnly, rightDirection);
+
+            // Apply only the side movement
+            myCharacterController.Move(projectedOnRight);
         }
-        else
-        {
-            // Apply gravity
-            verticalVelocity.y += gravity * Time.deltaTime;
-        }
-
-        // Apply vertical movement (gravity/jump)
-        myCharacterController.Move(verticalVelocity * Time.deltaTime);
-
-        // Handle forward movement
-        Vector3 forwardMovement = transform.forward * speed * Time.deltaTime;
-        myCharacterController.Move(forwardMovement);
-
-        // Handle mouse-based side-to-side movement
-        float mouseX = Input.mousePosition.x;
-        float normalizedX = (mouseX / Screen.width) * 2 - 1; // Convert to -1 to 1
-        float targetSideMovement = normalizedX * movementRange;
-
-        // Calculate movement perpendicular to forward direction
-        Vector3 rightDirection = transform.right;
-        Vector3 targetSidePosition = transform.position + rightDirection * targetSideMovement;
-
-        // Apply side movement
-        Vector3 currentPos = transform.position;
-        Vector3 newPosition = Vector3.Lerp(currentPos, targetSidePosition, Time.deltaTime * mouseMovementSpeed);
-
-        // Calculate only the side movement component
-        Vector3 sideMovementOnly = newPosition - currentPos;
-        Vector3 projectedOnRight = Vector3.Project(sideMovementOnly, rightDirection);
-
-        // Apply only the side movement
-        myCharacterController.Move(projectedOnRight);
     }
 
     // More reliable ground check using a raycast

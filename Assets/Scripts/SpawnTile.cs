@@ -5,7 +5,7 @@ public class SpawnTile : MonoBehaviour
     public GameObject TileToSpawn;
     public GameObject referenceObject;
     public GameObject obstacle;
-
+    public GameObject piece;
     public float timeOffset = 0.4f;
     public float RandomValue = 0.8f;
 
@@ -78,6 +78,25 @@ public class SpawnTile : MonoBehaviour
 
                     instantiated.transform.position = new Vector3(randomX, obstacleY, randomZ);
                 }
+
+                if (Random.value < 0.2f) {
+                    GameObject pieces_instantiated = Instantiate(piece);
+
+                                        // Obtenir la taille réelle de l'obstacle
+                    float pieceHeight = pieces_instantiated.GetComponent<Renderer>().bounds.size.y;
+                    float pieceWidth = pieces_instantiated.GetComponent<Renderer>().bounds.size.x;
+                    float pieceDepth = pieces_instantiated.GetComponent<Renderer>().bounds.size.z;
+
+                    // Générer une position aléatoire sur la tuile
+                    float randomX = Random.Range(spawnPos.x - tileSizeX / 2, spawnPos.x + tileSizeX / 2);// + (obstacleWidth / 2);
+                    float randomZ = Random.Range(spawnPos.z - tileSizeZ / 2, spawnPos.z + tileSizeZ / 2);// + (obstacleDepth / 2);
+                    float pieceY = spawnPos.y + (tileSizeY / 2) + (pieceHeight / 2);
+
+                    pieces_instantiated.transform.position = new Vector3(randomX, pieceY, randomZ);
+
+                }
+
+
 
                 // Mise à jour de la position de la dernière tuile
                 previousTilePosition = spawnPos;

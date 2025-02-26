@@ -43,7 +43,7 @@ public class Obstacle : MonoBehaviour
     IEnumerator waitAndReload()
     {
         yield return new WaitForSeconds(3f);
-        Application.LoadLevel("scene_anais2");
+        Application.LoadLevel("scene_3");
     }
 
 }

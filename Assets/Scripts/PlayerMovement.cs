@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,11 +10,13 @@ public class PlayerMovement : MonoBehaviour
     public float mouseMovementSpeed = 5.0f;
     public float movementRange = 5f;
 
-    // Jump variables
-    public float jumpHeight = 1.0f;
-    public float gravity = -9.81f;
+    // Jump variables - VALEURS AMÉLIORÉES
+    public float jumpHeight = 3.0f;               // Augmenté considérablement pour des sauts plus hauts
+    public float gravity = -18.0f;                // Gravité plus forte pour un meilleur contrôle
     private Vector3 verticalVelocity = Vector3.zero;
     private bool isJumping = false;
+    private Vector3 jumpMomentum = Vector3.zero;  // Nouvel élan horizontal pendant le saut
+    public float jumpForwardBoost = 1.5f;         // Boost de vitesse pendant le saut
 
     private bool isGrounded = true;
     public bool canMove = true;
@@ -29,6 +30,12 @@ public class PlayerMovement : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         myCharacterController = GetComponent<CharacterController>();
+        
+        // Désactive root motion pour que l'animation ne contrôle pas le mouvement
+        if (animator != null)
+        {
+            animator.applyRootMotion = false;
+        }
     }
 
     void Update()
@@ -64,6 +71,9 @@ public class PlayerMovement : MonoBehaviour
             {
                 // Reset vertical velocity when grounded
                 verticalVelocity.y = -0.5f; // Small negative value to keep grounded
+                
+                // Réinitialiser l'élan horizontal quand on touche le sol
+                jumpMomentum = Vector3.zero;
 
                 if (isJumping)
                 {
@@ -76,6 +86,10 @@ public class PlayerMovement : MonoBehaviour
                 {
                     // Formula for jump velocity: v = sqrt(-2 * gravity * jumpHeight)
                     verticalVelocity.y = Mathf.Sqrt(-2f * gravity * jumpHeight);
+                    
+                    // Ajouter un élan horizontal supplémentaire pour franchir les obstacles
+                    jumpMomentum = transform.forward * speed * jumpForwardBoost;
+                    
                     isJumping = true;
                     if (animator != null)
                     {
@@ -85,15 +99,34 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                // Apply gravity
-                verticalVelocity.y += gravity * Time.deltaTime;
+                // Apply gravity - Gravité différente pour montée et descente
+                if (verticalVelocity.y > 0)
+                {
+                    // Pendant la phase ascendante du saut
+                    verticalVelocity.y += gravity * 0.8f * Time.deltaTime; // Gravité réduite pour monter plus haut
+                }
+                else
+                {
+                    // Pendant la phase descendante du saut
+                    verticalVelocity.y += gravity * 1.2f * Time.deltaTime; // Gravité plus forte pour retomber plus vite
+                }
             }
 
             // Apply vertical movement (gravity/jump)
             myCharacterController.Move(verticalVelocity * Time.deltaTime);
 
-            // Handle forward movement
-            Vector3 forwardMovement = transform.forward * speed * Time.deltaTime;
+            // Handle forward movement - MODIFIÉ POUR UTILISER L'ÉLAN DU SAUT
+            Vector3 forwardMovement;
+            if (isJumping && !isGrounded && jumpMomentum.magnitude > 0)
+            {
+                // Utiliser l'élan du saut pendant qu'on est en l'air
+                forwardMovement = jumpMomentum * Time.deltaTime;
+            }
+            else
+            {
+                // Mouvement normal
+                forwardMovement = transform.forward * speed * Time.deltaTime;
+            }
             myCharacterController.Move(forwardMovement);
 
             // Handle mouse-based side-to-side movement
@@ -127,8 +160,8 @@ public class PlayerMovement : MonoBehaviour
             return true;
         }
 
-        // Add a raycast for additional ground detection
-        float rayLength = 0.1f;
+        // Add a raycast for additional ground detection - DISTANCE AUGMENTÉE
+        float rayLength = 0.2f;  // Augmenté pour une meilleure détection
         Vector3 rayStart = transform.position + myCharacterController.center;
 
         // Adjust the ray start position to be at the bottom of the character controller

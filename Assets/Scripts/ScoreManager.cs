@@ -15,5 +15,11 @@ public class ScoreManager : MonoBehaviour
         score ++;        
         scoreText.text = "Score: " +score;
 
+        }
+
+    // ✅ Fonction pour récupérer le score actuel
+    public int GetScore() 
+    {
+        return score;
     }
 }

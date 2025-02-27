@@ -5,7 +5,15 @@ public class Obstacle : MonoBehaviour
 {
     private Animator animator;
     private PlayerMovement playerMovement;
-    private TimeCount timer;
+    TimeCount timer;
+    GameUIManager uiManager;
+    private int score;
+    private float time;
+    ScoreManager scoreManager;
+    void Start ()
+    {
+        scoreManager = GameObject.Find("Canvas").GetComponent<ScoreManager>();
+    }
 
     void OnTriggerEnter(Collider other)
     {
@@ -13,15 +21,19 @@ public class Obstacle : MonoBehaviour
         {
             // Stop timer
             timer = FindFirstObjectByType<TimeCount>();
-
-            float finalTime = timer.GetElapsedTime();
-            timer.SetRunning(false);
-
-            Debug.Log("Temps final: " + finalTime);
+            if (timer != null)
+            {
+                float finalTime = timer.GetElapsedTime();
+                timer.SetRunning(false);
+                Debug.Log("Temps final: " + finalTime);
+            }
+            else
+            {
+                Debug.LogError("TimeCount script not found!");
+            }
 
             // Stop character movement
             playerMovement = other.gameObject.GetComponent<PlayerMovement>();
-
             if (playerMovement != null)
             {
                 playerMovement.canMove = false;
@@ -31,14 +43,41 @@ public class Obstacle : MonoBehaviour
                 Debug.LogError("PlayerMovement component not found on the player!");
             }
 
-            // launch animation
+            // Launch animation
             animator = other.gameObject.GetComponent<Animator>();
-            animator.SetTrigger("Stumble");
+            if (animator != null)
+            {
+                animator.SetTrigger("Stumble");
+            }
+            else
+            {
+                Debug.LogError("Animator component not found on the player!");
+            }
 
-            // reload
-            StartCoroutine(waitAndReload());
+            // Reload / Show results
+            uiManager = FindObjectOfType<GameUIManager>();
+            if (uiManager != null && scoreManager != null)
+            {
+                uiManager.ShowResults(scoreManager.GetScore(), timer != null ? timer.GetElapsedTime() : 0);
+            }
+            else
+            {
+                Debug.LogError("GameUIManager or ScoreManager is missing!");
+            }
+
+            if (uiManager != null)
+            {
+                Debug.Log("✅ uiManager trouvé !");
+                uiManager.ShowResults(scoreManager.GetScore(), timer != null ? timer.GetElapsedTime() : 0);
+            }
+            else
+            {
+                Debug.LogError("❌ GameUIManager est NULL !");
+            }
+
         }
     }
+
 
     IEnumerator waitAndReload()
     {

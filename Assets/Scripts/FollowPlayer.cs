@@ -9,11 +9,6 @@ public class FollowPlayer : MonoBehaviour
     public Transform player; // 🎯 Référence au personnage
     private float fixedY;    // Hauteur fixe du plane
 
-    private Animator animator;
-    private PlayerMovement playerMovement;
-
-    ScoreManager scoreManager;
-
     void Start()
     {
         scoreManager = GameObject.Find("Canvas").GetComponent<ScoreManager>();
@@ -46,42 +41,6 @@ public class FollowPlayer : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-
-
-        if (other.gameObject.CompareTag("Player"))
-        {
-            if (timer != null) // Vérifie que timer n'est pas null avant d'y accéder
-            {
-                float finalTime = timer.GetElapsedTime();
-                uiManager.ShowResults(scoreManager.GetScore(), finalTime); // 📢 Affiche le panneau de résultats
-            }
-            else
-            {
-                Debug.LogError("TimeCount script not found in the scene!");
-            }
-            // Stop timer
-
-            timer.SetRunning(false);
-
-            Debug.Log("Temps final: " + finalTime);
-
-            // launch animation
-            animator = other.gameObject.GetComponent<Animator>();
-            animator.SetTrigger("Fall");
-
-
-
-            // reload
-            StartCoroutine(waitAndReload());
-
-        }
-
-    }
-
-    IEnumerator waitAndReload()
-    {
-        yield return new WaitForSeconds(3f);
-        Application.LoadLevel("scene_anais3");
-
+        Application.LoadLevel("scene_3");
     }
 }

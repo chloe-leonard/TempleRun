@@ -9,19 +9,23 @@ public class FollowPlayer : MonoBehaviour
     public Transform player; // 🎯 Référence au personnage
     private float fixedY;    // Hauteur fixe du plane
 
+    private Animator animator;
+
+    ScoreManager scoreManager;
+
     void Start()
     {
         scoreManager = GameObject.Find("Canvas").GetComponent<ScoreManager>();
 
         // Récupérer correctement le script TimeCount dans la scène
-        timer = FindObjectOfType<TimeCount>();  // Trouve le script TimeCount dans la scène
+        timer = FindFirstObjectByType<TimeCount>();  // Trouve le script TimeCount dans la scène
         if (timer == null)
         {
             Debug.LogError("TimeCount script not found in the scene!");
         }
 
         // Récupérer correctement le script GameUIManager dans la scène
-        uiManager = FindObjectOfType<GameUIManager>();  // Trouve le script GameUIManager dans la scène
+        uiManager = FindFirstObjectByType<GameUIManager>();  // Trouve le script GameUIManager dans la scène
         if (uiManager == null)
         {
             Debug.LogError("GameUIManager script not found in the scene!");
@@ -41,6 +45,36 @@ public class FollowPlayer : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Application.LoadLevel("scene_3");
+        if (other.gameObject.CompareTag("Player"))
+        {
+            animator = other.gameObject.GetComponent<Animator>();
+
+            // launch animation
+            if (animator != null)
+            {
+                animator.SetTrigger("Fall");
+            }
+            else
+            {
+                Debug.LogError("❌ Animator component not found on the player!");
+            }
+
+            if (timer != null) // Vérifie que timer n'est pas null avant d'y accéder
+            {
+                timer.SetRunning(false);
+                float finalTime = timer.GetElapsedTime();
+                StartCoroutine(waitAndReload(scoreManager.GetScore(), finalTime));
+            }
+            else
+            {
+                Debug.LogError("TimeCount script not found in the scene!");
+            }
+        }
+    }
+
+    IEnumerator waitAndReload(int score, float finalTime)
+    {
+        yield return new WaitForSeconds(3f);
+        uiManager.ShowResults(score, finalTime);
     }
 }

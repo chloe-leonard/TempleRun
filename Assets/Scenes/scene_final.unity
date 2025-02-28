@@ -1883,7 +1883,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resultsPanel: {fileID: 167619593}
-  FirstPanel: {fileID: 0}
+  FirstPanel: {fileID: 123560890}
   scoreText: {fileID: 766622487}
   timeText: {fileID: 1358387306}
 --- !u!114 &403502214

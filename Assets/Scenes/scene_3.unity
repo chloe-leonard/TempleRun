@@ -1014,6 +1014,11 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!4 &67480337 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 955d7a9821d05ff41a479cf89069091c, type: 3}
+  m_PrefabInstance: {fileID: 67480331}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &123560890
 GameObject:
   m_ObjectHideFlags: 0
@@ -1514,7 +1519,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec9e9bae97384b94fa03c7553f20392c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  target: {fileID: 67480337}
   trailDistance: 5
   heightOffset: 3
   cameraDelay: 0.02
@@ -1929,7 +1934,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 360c56815530b9b42ab2c417567177f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 67480337}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

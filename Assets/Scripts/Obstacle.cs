@@ -10,7 +10,7 @@ public class Obstacle : MonoBehaviour
     private int score;
     private float time;
     ScoreManager scoreManager;
-    void Start ()
+    void Start()
     {
         scoreManager = GameObject.Find("Canvas").GetComponent<ScoreManager>();
     }
@@ -55,10 +55,10 @@ public class Obstacle : MonoBehaviour
             }
 
             // Reload / Show results
-            uiManager = FindObjectOfType<GameUIManager>();
+            uiManager = FindFirstObjectByType<GameUIManager>();
             if (uiManager != null && scoreManager != null)
             {
-                uiManager.ShowResults(scoreManager.GetScore(), timer != null ? timer.GetElapsedTime() : 0);
+                StartCoroutine(waitAndReload(scoreManager.GetScore(), timer != null ? timer.GetElapsedTime() : 0));
             }
             else
             {
@@ -67,8 +67,9 @@ public class Obstacle : MonoBehaviour
 
             if (uiManager != null)
             {
+
                 Debug.Log("✅ uiManager trouvé !");
-                uiManager.ShowResults(scoreManager.GetScore(), timer != null ? timer.GetElapsedTime() : 0);
+                StartCoroutine(waitAndReload(scoreManager.GetScore(), timer != null ? timer.GetElapsedTime() : 0));
             }
             else
             {
@@ -79,10 +80,10 @@ public class Obstacle : MonoBehaviour
     }
 
 
-    IEnumerator waitAndReload()
+    IEnumerator waitAndReload(int score, float finalTime)
     {
         yield return new WaitForSeconds(3f);
-        Application.LoadLevel("scene_3");
+        uiManager.ShowResults(score, finalTime);
     }
 
 }
